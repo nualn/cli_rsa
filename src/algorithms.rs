@@ -58,3 +58,34 @@ fn modular_pow(base: &BigUint, exponent: &BigUint, modulus: &BigUint) -> BigUint
 
     return result;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{miller_rabin, modular_pow};
+    use num_bigint::BigUint;
+
+    #[test]
+    fn miller_rabin_returns_true_for_prime() {
+        let prime = BigUint::from(7919usize); // 1000th prime
+        let res = miller_rabin(&prime, 4);
+        assert!(res)
+    }
+
+    #[test]
+    fn miller_rabin_returns_false_for_nonprime() {
+        let nonprime = BigUint::from(7921usize);
+        let res = miller_rabin(&nonprime, 4);
+        assert!(!res)
+    }
+
+    #[test]
+    fn modular_pow_returns_correct_remainder() {
+        let result = modular_pow(
+            &BigUint::from(3usize),
+            &BigUint::from(2usize),
+            &BigUint::from(5usize),
+        );
+
+        assert_eq!(BigUint::from(4usize), result);
+    }
+}
