@@ -1,5 +1,5 @@
 ## What I did:
-Implemented the extended eucledian algorithm. Finished the rest of the key generation algorithm.
+Implemented the extended eucledian algorithm. Finished the rest of the key generation algorithm. Rust comes with style checking included and I don't see a need to alter the default style conf so I have not made my own.
 
 ## Progress:
 Extended Eucledian Algorithm implemented. The rest of key generation implemented.
