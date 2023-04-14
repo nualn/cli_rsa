@@ -2,6 +2,9 @@ use num_bigint::{BigInt, RandomBits};
 use rand::Rng;
 use rsa::algorithms::{self, extended_eucledian};
 
+use std::fs::File;
+use std::io::prelude::*;
+
 const KEY_SIZE: u64 = 1024;
 const MR_ITERATIONS: isize = 4;
 const DEFAULT_E: i32 = 65_537;
@@ -20,7 +23,10 @@ fn main() {
     match &command[..] {
         "generate" => {
             let keys = KeyPair::generate();
-            keys.write_to_file();
+            match keys.write_to_file() {
+                Ok(_) => (),
+                Err(e) => panic!("Failed to write keys to file: {:?}", e),
+            };
         }
         _ => println!("Unknown command {command}"),
     };
@@ -29,6 +35,16 @@ fn main() {
 struct Key {
     exp: BigInt,
     modulus: BigInt,
+}
+
+impl Key {
+    fn write_to_file(&self, path: &str) -> std::io::Result<()> {
+        let key_string = self.modulus.to_string() + "\n" + &self.exp.to_string();
+
+        let mut file = File::create(path)?;
+        file.write_all(&key_string.as_bytes())?;
+        Ok(())
+    }
 }
 struct KeyPair {
     public: Key,
@@ -48,12 +64,10 @@ impl KeyPair {
         }
     }
 
-    pub fn write_to_file(&self) {
-        // TODO: write keys to file
-        println!("Public Key:");
-        println!("Exp: {}, mod: {}", self.public.exp, self.public.modulus);
-        println!("Private Key:");
-        println!("Exp: {}, mod: {}", self.private.exp, self.private.modulus);
+    pub fn write_to_file(&self) -> std::io::Result<()> {
+        self.public.write_to_file("key.public")?;
+        self.private.write_to_file("key.private")?;
+        Ok(())
     }
 }
 
