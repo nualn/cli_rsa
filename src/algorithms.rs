@@ -39,7 +39,7 @@ pub fn miller_rabin(n: &BigInt, k: isize) -> bool {
 }
 
 /// Returns result for base^exponent % modulus
-fn modular_pow(base: &BigInt, exponent: &BigInt, modulus: &BigInt) -> BigInt {
+pub fn modular_pow(base: &BigInt, exponent: &BigInt, modulus: &BigInt) -> BigInt {
     if *modulus == BigInt::from(1) {
         return BigInt::from(0);
     }

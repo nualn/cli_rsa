@@ -19,6 +19,14 @@ enum Commands {
         #[arg(short, long)]
         key_path: String,
     },
+    Decrypt {
+        #[arg(short, long)]
+        in_path: String,
+        #[arg(short, long)]
+        out_path: String,
+        #[arg(short, long)]
+        key_path: String,
+    },
 }
 
 fn main() {
@@ -33,15 +41,34 @@ fn main() {
             };
         }
         Commands::Encrypt {
-            in_path: _,
-            out_path: _,
+            in_path,
+            out_path,
             key_path,
         } => {
             let key = match Key::from_file(key_path) {
                 Ok(key) => key,
                 Err(e) => panic!("Failed to read key from file: {}", e),
             };
-            dbg!(key);
+
+            match key.encrypt(in_path, out_path) {
+                Ok(_) => (),
+                Err(e) => panic!("Failed to encrypt file: {:?}", e),
+            };
+        }
+        Commands::Decrypt {
+            in_path,
+            out_path,
+            key_path,
+        } => {
+            let key = match Key::from_file(key_path) {
+                Ok(key) => key,
+                Err(e) => panic!("Failed to read key from file: {}", e),
+            };
+
+            match key.decrypt(in_path, out_path) {
+                Ok(_) => (),
+                Err(e) => panic!("Failed to decrypt file: {:?}", e),
+            };
         }
     };
 }

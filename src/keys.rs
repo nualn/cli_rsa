@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{self, prelude::*, Error};
 
-use crate::algorithms;
+use crate::algorithms::{self, modular_pow};
 use num_bigint::{BigInt, RandomBits};
 use rand::Rng;
 use std::str::FromStr;
@@ -22,6 +22,7 @@ impl Key {
 
         let mut file = File::create(path)?;
         file.write_all(&key_string.as_bytes())?;
+
         Ok(())
     }
 
@@ -48,6 +49,59 @@ impl Key {
                 Err(_) => panic!("Invalid key file: {}", path),
             },
         })
+    }
+    pub fn encrypt(&self, in_path: &str, out_path: &str) -> std::io::Result<()> {
+        let in_bytes: usize = (self.modulus.bits() / 8).try_into().unwrap();
+        let out_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
+        self.dencrypt(in_path, out_path, in_bytes, out_bytes)
+    }
+
+    pub fn decrypt(&self, in_path: &str, out_path: &str) -> std::io::Result<()> {
+        let in_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
+        let out_bytes: usize = ((self.modulus.bits() - 1) / 8).try_into().unwrap();
+        self.dencrypt(in_path, out_path, in_bytes, out_bytes)
+    }
+
+    fn dencrypt(
+        &self,
+        in_path: &str,
+        out_path: &str,
+        in_bytes: usize,
+        out_bytes: usize,
+    ) -> std::io::Result<()> {
+        let mut in_file = File::open(in_path)?;
+        let mut out_file = File::create(out_path)?;
+
+        let mut current_in_bytes: Vec<u8> = vec![0u8; in_bytes];
+
+        let mut amount_of_bytes_read = in_bytes;
+
+        while amount_of_bytes_read > 0 {
+            current_in_bytes.fill(0);
+            amount_of_bytes_read = in_file.read(&mut current_in_bytes)?;
+            if amount_of_bytes_read == 0 {
+                break;
+            }
+            dbg!(amount_of_bytes_read);
+
+            let mut dencrypted_bytes = modular_pow(
+                &BigInt::from_bytes_le(num_bigint::Sign::Plus, &current_in_bytes),
+                &self.exp,
+                &self.modulus,
+            )
+            .to_bytes_le()
+            .1;
+
+            // Fill in missing bytes
+            let mut i = 0;
+            while i < out_bytes - dencrypted_bytes.len() {
+                dencrypted_bytes.push(0u8);
+                i += 1;
+            }
+            dbg!(out_file.write(&dencrypted_bytes)?);
+        }
+
+        Ok(())
     }
 }
 pub struct KeyPair {
