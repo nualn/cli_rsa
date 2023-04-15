@@ -1,15 +1,17 @@
 use std::fs::File;
-use std::io::prelude::*;
+use std::io::{self, prelude::*, Error};
 
 use crate::algorithms;
 use num_bigint::{BigInt, RandomBits};
 use rand::Rng;
+use std::str::FromStr;
 
 const KEY_SIZE: u64 = 1024;
 const MR_ITERATIONS: isize = 4;
 const DEFAULT_EXP: i32 = 65_537;
 
-struct Key {
+#[derive(Debug)]
+pub struct Key {
     exp: BigInt,
     modulus: BigInt,
 }
@@ -21,6 +23,31 @@ impl Key {
         let mut file = File::create(path)?;
         file.write_all(&key_string.as_bytes())?;
         Ok(())
+    }
+
+    pub fn from_file(path: &str) -> Result<Key, Error> {
+        let file = File::open(path)?;
+        let mut file_buf = io::BufReader::new(file).lines();
+
+        let modulus = match file_buf.next() {
+            Some(string) => string?,
+            None => panic!("Invalid key file: {}", path),
+        };
+        let exp = match file_buf.next() {
+            Some(string) => string?,
+            None => panic!("Invalid key file: {}", path),
+        };
+
+        Ok(Key {
+            modulus: match BigInt::from_str(&modulus) {
+                Ok(num) => num,
+                Err(_) => panic!("Invalid key file: {}", path),
+            },
+            exp: match BigInt::from_str(&exp) {
+                Ok(num) => num,
+                Err(_) => panic!("Invalid key file: {}", path),
+            },
+        })
     }
 }
 pub struct KeyPair {
