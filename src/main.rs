@@ -1,24 +1,28 @@
+use clap::{Parser, Subcommand};
 use rsa::keys::KeyPair;
 
+#[derive(Parser)]
+#[command(author, version, about, long_about=None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Generate,
+}
+
 fn main() {
-    // TODO: Parse args with clap
-    let args: Vec<String> = std::env::args().collect();
+    let cli = Cli::parse();
 
-    if args.len() < 2 {
-        println!("Please provide a command");
-        std::process::exit(1);
-    }
-
-    let command = &args[1];
-
-    match &command[..] {
-        "generate" => {
+    match &cli.command {
+        Commands::Generate => {
             let keys = KeyPair::generate();
             match keys.write_to_file() {
                 Ok(_) => (),
                 Err(e) => panic!("Failed to write keys to file: {:?}", e),
             };
         }
-        _ => println!("Unknown command {command}"),
     };
 }
