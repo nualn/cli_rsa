@@ -82,7 +82,6 @@ impl Key {
             if amount_of_bytes_read == 0 {
                 break;
             }
-            dbg!(amount_of_bytes_read);
 
             let mut dencrypted_bytes = modular_pow(
                 &BigInt::from_bytes_le(num_bigint::Sign::Plus, &current_in_bytes),
@@ -98,7 +97,8 @@ impl Key {
                 dencrypted_bytes.push(0u8);
                 i += 1;
             }
-            dbg!(out_file.write(&dencrypted_bytes)?);
+
+            out_file.write(&dencrypted_bytes)?;
         }
 
         Ok(())
