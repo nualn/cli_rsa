@@ -50,35 +50,32 @@ impl Key {
             },
         })
     }
-    pub fn encrypt(&self, in_path: &str, out_path: &str) -> std::io::Result<()> {
+    pub fn encrypt(&self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
         let in_bytes: usize = (self.modulus.bits() / 8).try_into().unwrap();
         let out_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
-        self.dencrypt(in_path, out_path, in_bytes, out_bytes)
+        self.dencrypt(input, output, in_bytes, out_bytes)
     }
 
-    pub fn decrypt(&self, in_path: &str, out_path: &str) -> std::io::Result<()> {
+    pub fn decrypt(&mut self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
         let in_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
         let out_bytes: usize = ((self.modulus.bits() - 1) / 8).try_into().unwrap();
-        self.dencrypt(in_path, out_path, in_bytes, out_bytes)
+        self.dencrypt(input, output, in_bytes, out_bytes)
     }
 
     fn dencrypt(
         &self,
-        in_path: &str,
-        out_path: &str,
+        input: &mut dyn Read,
+        output: &mut dyn Write,
         in_bytes: usize,
         out_bytes: usize,
     ) -> std::io::Result<()> {
-        let mut in_file = File::open(in_path)?;
-        let mut out_file = File::create(out_path)?;
-
         let mut current_in_bytes: Vec<u8> = vec![0u8; in_bytes];
 
         let mut amount_of_bytes_read = in_bytes;
 
         while amount_of_bytes_read > 0 {
             current_in_bytes.fill(0);
-            amount_of_bytes_read = in_file.read(&mut current_in_bytes)?;
+            amount_of_bytes_read = input.read(&mut current_in_bytes)?;
             if amount_of_bytes_read == 0 {
                 break;
             }
@@ -98,7 +95,7 @@ impl Key {
                 i += 1;
             }
 
-            out_file.write(&dencrypted_bytes)?;
+            output.write(&dencrypted_bytes)?;
         }
 
         Ok(())

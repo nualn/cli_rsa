@@ -1,3 +1,5 @@
+use std::fs::File;
+
 use clap::{Parser, Subcommand};
 use rsa::keys::{Key, KeyPair};
 
@@ -50,7 +52,16 @@ fn main() {
                 Err(e) => panic!("Failed to read key from file: {}", e),
             };
 
-            match key.encrypt(in_path, out_path) {
+            let mut in_file = match File::open(in_path) {
+                Ok(file) => file,
+                Err(e) => panic!("Failed to open file: {:?}", e),
+            };
+            let mut out_file = match File::create(out_path) {
+                Ok(file) => file,
+                Err(e) => panic!("Failed to open file: {:?}", e),
+            };
+
+            match key.encrypt(&mut in_file, &mut out_file) {
                 Ok(_) => (),
                 Err(e) => panic!("Failed to encrypt file: {:?}", e),
             };
@@ -60,12 +71,21 @@ fn main() {
             out_path,
             key_path,
         } => {
-            let key = match Key::from_file(key_path) {
+            let mut key = match Key::from_file(key_path) {
                 Ok(key) => key,
                 Err(e) => panic!("Failed to read key from file: {}", e),
             };
 
-            match key.decrypt(in_path, out_path) {
+            let mut in_file = match File::open(in_path) {
+                Ok(file) => file,
+                Err(e) => panic!("Failed to open file: {:?}", e),
+            };
+            let mut out_file = match File::create(out_path) {
+                Ok(file) => file,
+                Err(e) => panic!("Failed to open file: {:?}", e),
+            };
+
+            match key.decrypt(&mut in_file, &mut out_file) {
                 Ok(_) => (),
                 Err(e) => panic!("Failed to decrypt file: {:?}", e),
             };
