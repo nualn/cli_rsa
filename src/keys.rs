@@ -53,22 +53,7 @@ impl Key {
     pub fn encrypt(&self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
         let in_bytes: usize = (self.modulus.bits() / 8).try_into().unwrap();
         let out_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
-        self.dencrypt(input, output, in_bytes, out_bytes)
-    }
 
-    pub fn decrypt(&mut self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
-        let in_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
-        let out_bytes: usize = ((self.modulus.bits() - 1) / 8).try_into().unwrap();
-        self.dencrypt(input, output, in_bytes, out_bytes)
-    }
-
-    fn dencrypt(
-        &self,
-        input: &mut dyn Read,
-        output: &mut dyn Write,
-        in_bytes: usize,
-        out_bytes: usize,
-    ) -> std::io::Result<()> {
         let mut current_in_bytes: Vec<u8> = vec![0u8; in_bytes];
 
         let mut amount_of_bytes_read = in_bytes;
@@ -94,6 +79,34 @@ impl Key {
                 dencrypted_bytes.push(0u8);
                 i += 1;
             }
+
+            output.write(&dencrypted_bytes)?;
+        }
+
+        Ok(())
+    }
+
+    pub fn decrypt(&mut self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
+        let in_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
+
+        let mut current_in_bytes: Vec<u8> = vec![0u8; in_bytes];
+
+        let mut amount_of_bytes_read = in_bytes;
+
+        while amount_of_bytes_read > 0 {
+            current_in_bytes.fill(0);
+            amount_of_bytes_read = input.read(&mut current_in_bytes)?;
+            if amount_of_bytes_read == 0 {
+                break;
+            }
+
+            let dencrypted_bytes = modular_pow(
+                &BigInt::from_bytes_le(num_bigint::Sign::Plus, &current_in_bytes),
+                &self.exp,
+                &self.modulus,
+            )
+            .to_bytes_le()
+            .1;
 
             output.write(&dencrypted_bytes)?;
         }
