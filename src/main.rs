@@ -1,4 +1,7 @@
-use std::fs::File;
+use std::{
+    fs::File,
+    io::{self, Read, Write},
+};
 
 use clap::{Parser, Subcommand};
 use rsa::keys::{Key, KeyPair};
@@ -15,17 +18,17 @@ enum Commands {
     Generate,
     Encrypt {
         #[arg(short, long)]
-        in_path: String,
+        in_path: Option<String>,
         #[arg(short, long)]
-        out_path: String,
+        out_path: Option<String>,
         #[arg(short, long)]
         key_path: String,
     },
     Decrypt {
         #[arg(short, long)]
-        in_path: String,
+        in_path: Option<String>,
         #[arg(short, long)]
-        out_path: String,
+        out_path: Option<String>,
         #[arg(short, long)]
         key_path: String,
     },
@@ -52,16 +55,17 @@ fn main() {
                 Err(e) => panic!("Failed to read key from file: {}", e),
             };
 
-            let mut in_file = match File::open(in_path) {
-                Ok(file) => file,
-                Err(e) => panic!("Failed to open file: {:?}", e),
-            };
-            let mut out_file = match File::create(out_path) {
-                Ok(file) => file,
-                Err(e) => panic!("Failed to open file: {:?}", e),
+            let mut input: Box<dyn Read> = match in_path {
+                Some(path) => Box::new(File::open(path).unwrap()),
+                None => Box::new(io::stdin()),
             };
 
-            match key.encrypt(&mut in_file, &mut out_file) {
+            let mut output: Box<dyn Write> = match out_path {
+                Some(path) => Box::new(File::create(path).unwrap()),
+                None => Box::new(io::stdout()),
+            };
+
+            match key.encrypt(&mut input, &mut output) {
                 Ok(_) => (),
                 Err(e) => panic!("Failed to encrypt file: {:?}", e),
             };
@@ -76,16 +80,17 @@ fn main() {
                 Err(e) => panic!("Failed to read key from file: {}", e),
             };
 
-            let mut in_file = match File::open(in_path) {
-                Ok(file) => file,
-                Err(e) => panic!("Failed to open file: {:?}", e),
-            };
-            let mut out_file = match File::create(out_path) {
-                Ok(file) => file,
-                Err(e) => panic!("Failed to open file: {:?}", e),
+            let mut input: Box<dyn Read> = match in_path {
+                Some(path) => Box::new(File::open(path).unwrap()),
+                None => Box::new(io::stdin()),
             };
 
-            match key.decrypt(&mut in_file, &mut out_file) {
+            let mut output: Box<dyn Write> = match out_path {
+                Some(path) => Box::new(File::create(path).unwrap()),
+                None => Box::new(io::stdout()),
+            };
+
+            match key.decrypt(&mut input, &mut output) {
                 Ok(_) => (),
                 Err(e) => panic!("Failed to decrypt file: {:?}", e),
             };
