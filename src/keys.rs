@@ -26,6 +26,7 @@ impl Key {
         Ok(())
     }
 
+    /// Creates a keypair with values from the given filepath.
     pub fn from_file(path: &str) -> Result<Key, Error> {
         let file = File::open(path)?;
         let mut file_buf = io::BufReader::new(file).lines();
@@ -51,6 +52,7 @@ impl Key {
         })
     }
 
+    /// Reads data from the input, encrypts it using self, then writes it to the output.
     pub fn encrypt(&self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
         let in_bytes: usize = (self.modulus.bits() / 8).try_into().unwrap();
         let out_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
@@ -87,6 +89,7 @@ impl Key {
         Ok(())
     }
 
+    /// Reads data from the input, decrypts it using self, then writes it to the output.
     pub fn decrypt(&self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
         let in_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
 
@@ -115,12 +118,15 @@ impl Key {
         Ok(())
     }
 }
+
+/// Data type for a RSA keypair.
 pub struct KeyPair {
     public: Key,
     private: Key,
 }
 
 impl KeyPair {
+    /// Generates a keypair with random prime numbers.
     pub fn generate() -> KeyPair {
         loop {
             let p = generate_probable_prime();
@@ -133,6 +139,7 @@ impl KeyPair {
         }
     }
 
+    /// Writes the keypair to the current directory.
     pub fn write_to_file(&self) -> std::io::Result<()> {
         self.public.write_to_file("key.public")?;
         self.private.write_to_file("key.private")?;
@@ -140,10 +147,12 @@ impl KeyPair {
     }
 }
 
+/// Generates a keypair from two prime numbers.
 fn generate_from_primes(p: &BigInt, q: &BigInt) -> Result<KeyPair, &'static str> {
     let n = p * q;
 
-    let lambda_n = lcm(&(p - BigInt::from(1)), &(q - BigInt::from(1)));
+    let lambda_n =
+        algorithms::least_common_multiple(&(p - BigInt::from(1)), &(q - BigInt::from(1)));
     let e = BigInt::from(DEFAULT_EXP);
 
     let (_, d, _) = algorithms::extended_eucledian(&e, &lambda_n);
@@ -161,17 +170,14 @@ fn generate_from_primes(p: &BigInt, q: &BigInt) -> Result<KeyPair, &'static str>
     }
 }
 
+/// Generates a probable prime number by testing randomly generated numbers
+/// numbers for primality.
 fn generate_probable_prime() -> BigInt {
     let mut num: BigInt = rand::thread_rng().sample(RandomBits::new(KEY_SIZE));
     while !algorithms::miller_rabin(&num, MR_ITERATIONS) {
         num = rand::thread_rng().sample(RandomBits::new(KEY_SIZE));
     }
     return num;
-}
-
-fn lcm(a: &BigInt, b: &BigInt) -> BigInt {
-    let (qcd, _, _) = algorithms::extended_eucledian(a, b);
-    a * b / qcd
 }
 
 #[cfg(test)]

@@ -59,6 +59,8 @@ pub fn modular_pow(base: &BigInt, exponent: &BigInt, modulus: &BigInt) -> BigInt
     return result;
 }
 
+/// Returns the greatest common divisor of two numbers,
+/// and the coefficients of Bézout's identity.
 pub fn extended_eucledian(a: &BigInt, b: &BigInt) -> (BigInt, BigInt, BigInt) {
     let (mut old_r, mut r) = (a.clone(), b.clone());
     let (mut old_s, mut s) = (BigInt::from(1), BigInt::from(0));
@@ -75,6 +77,12 @@ pub fn extended_eucledian(a: &BigInt, b: &BigInt) -> (BigInt, BigInt, BigInt) {
     }
 
     (old_r, old_s, old_t)
+}
+
+/// Calculates the least common multiple of two numbers.
+pub fn least_common_multiple(a: &BigInt, b: &BigInt) -> BigInt {
+    let (qcd, _, _) = extended_eucledian(a, b);
+    a * b / qcd
 }
 
 #[cfg(test)]
@@ -125,7 +133,6 @@ mod tests {
 
         assert_eq!(BigInt::from(4), result);
     }
-    // TODO: test with 500 bit numbers
 
     #[test]
     fn extended_euqledian_returns_correct() {
@@ -135,5 +142,4 @@ mod tests {
             result
         );
     }
-    // TODO: test with 1000 bit primes
 }
