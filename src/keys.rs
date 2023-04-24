@@ -86,7 +86,7 @@ impl Key {
         Ok(())
     }
 
-    pub fn decrypt(&mut self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
+    pub fn decrypt(&self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
         let in_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
 
         let mut current_in_bytes: Vec<u8> = vec![0u8; in_bytes];
@@ -171,4 +171,43 @@ fn generate_probable_prime() -> BigInt {
 fn lcm(a: &BigInt, b: &BigInt) -> BigInt {
     let (qcd, _, _) = algorithms::extended_eucledian(a, b);
     a * b / qcd
+}
+
+#[cfg(test)]
+mod tests {
+    use super::KeyPair;
+
+    #[test]
+    fn encrypt_returns_different_string() {
+        let keys: KeyPair = KeyPair::generate();
+
+        let original = Vec::from("FooBarBaz".as_bytes());
+        let mut encrypted = Vec::new();
+
+        keys.private
+            .encrypt(&mut &original[..], &mut encrypted)
+            .unwrap();
+
+        assert_ne!(original, encrypted)
+    }
+
+    #[test]
+    fn decrypt_returns_original_string() {
+        let keys: KeyPair = KeyPair::generate();
+
+        let original = Vec::from("FooBarBaz".as_bytes());
+        let mut encrypted = Vec::new();
+
+        keys.private
+            .encrypt(&mut &original[..], &mut encrypted)
+            .unwrap();
+
+        let mut decrypted = Vec::new();
+
+        keys.public
+            .decrypt(&mut &encrypted[..], &mut decrypted)
+            .unwrap();
+
+        assert_eq!(original, decrypted)
+    }
 }

@@ -75,7 +75,7 @@ fn main() {
             out_path,
             key_path,
         } => {
-            let mut key = match Key::from_file(key_path) {
+            let key = match Key::from_file(key_path) {
                 Ok(key) => key,
                 Err(e) => panic!("Failed to read key from file: {}", e),
             };
