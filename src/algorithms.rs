@@ -18,12 +18,12 @@ pub fn miller_rabin(n: &BigInt, k: isize) -> bool {
 
     for _ in 0..k {
         let a = rand::thread_rng().gen_bigint_range(&BigInt::from(2), &(n - 2));
-        let mut x = modular_pow(&a, &d, &n);
+        let mut x = modular_pow(&a, &d, n);
         let mut y = BigInt::zero();
 
         let mut m: BigInt = s.clone();
         while m > BigInt::zero() {
-            y = modular_pow(&x, &BigInt::from(2), &n);
+            y = modular_pow(&x, &BigInt::from(2), n);
             if y == BigInt::one() && x != BigInt::one() && x != n - 1 {
                 return false;
             }
@@ -58,7 +58,7 @@ pub fn modular_pow(base: &BigInt, exponent: &BigInt, modulus: &BigInt) -> BigInt
         base = (&base * &base) % modulus;
     }
 
-    return result;
+    result
 }
 
 /// Returns the greatest common divisor of two numbers,
@@ -68,13 +68,13 @@ pub fn extended_eucledian(a: &BigInt, b: &BigInt) -> (BigInt, BigInt, BigInt) {
     let (mut old_s, mut s) = (BigInt::one(), BigInt::zero());
     let (mut old_t, mut t) = (BigInt::zero(), BigInt::one());
 
-    while &r != &BigInt::zero() {
+    while r != BigInt::zero() {
         let quotient = &old_r / &r;
-        old_r = old_r - &quotient * &r;
+        old_r -= &quotient * &r;
         (old_r, r) = (r, old_r);
-        old_s = old_s - &quotient * &s;
+        old_s -= &quotient * &s;
         (old_s, s) = (s, old_s);
-        old_t = old_t - &quotient * &t;
+        old_t -= &quotient * &t;
         (old_t, t) = (t, old_t);
     }
 

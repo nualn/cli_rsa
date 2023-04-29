@@ -23,7 +23,7 @@ impl Key {
         let key_string = self.modulus.to_string() + "\n" + &self.exp.to_string();
 
         let mut file = File::create(path)?;
-        file.write_all(&key_string.as_bytes())?;
+        file.write_all(key_string.as_bytes())?;
 
         Ok(())
     }
@@ -85,7 +85,7 @@ impl Key {
                 i += 1;
             }
 
-            output.write(&dencrypted_bytes)?;
+            output.write_all(&dencrypted_bytes)?;
         }
 
         Ok(())
@@ -114,7 +114,7 @@ impl Key {
             .to_bytes_le()
             .1;
 
-            output.write(&dencrypted_bytes)?;
+            output.write_all(&dencrypted_bytes)?;
         }
 
         Ok(())
@@ -156,7 +156,7 @@ fn generate_from_primes(p: &BigInt, q: &BigInt, e: &BigInt) -> Result<KeyPair, &
 
     let lambda_n = algorithms::least_common_multiple(&(p - BigInt::one()), &(q - BigInt::one()));
 
-    let (gcd, d_tmp, _) = algorithms::extended_eucledian(&e, &lambda_n);
+    let (gcd, d_tmp, _) = algorithms::extended_eucledian(e, &lambda_n);
     let d = (d_tmp % &lambda_n + &lambda_n) % &lambda_n; // Take the modulo, not the remainder.
 
     if gcd != BigInt::one() {
@@ -179,7 +179,7 @@ fn generate_probable_prime() -> BigInt {
     while !algorithms::miller_rabin(&num, MR_ITERATIONS) {
         num = rand::thread_rng().sample(RandomBits::new(KEY_SIZE));
     }
-    return num;
+    num
 }
 
 #[cfg(test)]
