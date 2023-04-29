@@ -89,8 +89,17 @@ pub fn least_common_multiple(a: &BigInt, b: &BigInt) -> BigInt {
 mod tests {
     use std::str::FromStr;
 
-    use super::{extended_eucledian, miller_rabin, modular_pow};
+    use super::*;
     use num_bigint::BigInt;
+
+    #[test]
+    fn miller_rabin_returns_false_for_number_under_two() {
+        let numbers = [BigInt::from(2), BigInt::from(1), BigInt::from(0)];
+        for number in numbers {
+            let res = miller_rabin(&number, 4);
+            assert!(!res)
+        }
+    }
 
     #[test]
     fn miller_rabin_returns_true_for_prime() {
@@ -135,11 +144,24 @@ mod tests {
     }
 
     #[test]
+    fn modular_pow_returns_zero_for_mod_of_one() {
+        let result = modular_pow(&BigInt::from(123456), &BigInt::from(5), &BigInt::from(1));
+
+        assert_eq!(BigInt::from(0), result);
+    }
+
+    #[test]
     fn extended_euqledian_returns_correct() {
         let result = extended_eucledian(&BigInt::from(240), &BigInt::from(46));
         assert_eq!(
             (BigInt::from(2), BigInt::from(-9), BigInt::from(47)),
             result
         );
+    }
+
+    #[test]
+    fn least_common_multiple_returns_correct() {
+        let result = least_common_multiple(&BigInt::from(4), &BigInt::from(6));
+        assert_eq!(BigInt::from(12), result);
     }
 }
