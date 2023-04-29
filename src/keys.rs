@@ -220,6 +220,29 @@ mod tests {
     fn decrypt_returns_original_string() {
         let keys = get_test_keys();
 
+        let original = Vec::from(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla tincidunt eu odio quis efficitur. Ut vel iaculis ipsum. Duis ullamcorper enim ut eros pulvinar venenatis. Suspendisse feugiat hendrerit metus, eget iaculis arcu molestie vitae. Proin venenatis, enim sit amet commodo vestibulum, eros arcu cursus neque, id elementum leo ante sit amet dui. Nulla facilisi. Donec lacus tellus, pellentesque non risus at, elementum imperdiet orci. Phasellus maximus dolor quam, non consequat ex dapibus ut. Suspendisse diam tellus, tincidunt tincidunt massa in, tincidunt tincidunt libero. Curabitur rhoncus est quis odio interdum consequat. Ut at sodales tellus. Nullam et elit tellus. Cras maximus augue ac mi sodales, ac imperdiet arcu faucibus. Vestibulum semper eu elit id suscipit.
+                Morbi elementum tempor tellus quis gravida. Vestibulum tincidunt diam eget pulvinar finibus. Nullam luctus, ex id pharetra ultrices, libero ligula blandit ex, id aliquet lectus leo id quam. Vivamus pretium justo molestie. ".as_bytes()
+        );
+        let mut encrypted = Vec::new();
+
+        keys.private
+            .encrypt(&mut &original[..], &mut encrypted)
+            .unwrap();
+
+        let mut decrypted = Vec::new();
+
+        keys.public
+            .decrypt(&mut &encrypted[..], &mut decrypted)
+            .unwrap();
+
+        assert_eq!(original, decrypted)
+    }
+
+    #[test]
+    fn decrypt_returns_original_string_for_long_input() {
+        let keys = get_test_keys();
+
         let original = Vec::from("FooBarBaz".as_bytes());
         let mut encrypted = Vec::new();
 
