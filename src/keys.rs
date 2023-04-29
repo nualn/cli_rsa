@@ -131,8 +131,9 @@ impl KeyPair {
         loop {
             let p = generate_probable_prime();
             let q = generate_probable_prime();
+            let e = BigInt::from(DEFAULT_EXP);
 
-            match generate_from_primes(&p, &q) {
+            match generate_from_primes(&p, &q, &e) {
                 Ok(key_pair) => return key_pair,
                 Err(_) => continue,
             }
@@ -148,21 +149,21 @@ impl KeyPair {
 }
 
 /// Generates a keypair from two prime numbers.
-fn generate_from_primes(p: &BigInt, q: &BigInt) -> Result<KeyPair, &'static str> {
+fn generate_from_primes(p: &BigInt, q: &BigInt, e: &BigInt) -> Result<KeyPair, &'static str> {
     let n = p * q;
 
     let lambda_n =
         algorithms::least_common_multiple(&(p - BigInt::from(1)), &(q - BigInt::from(1)));
-    let e = BigInt::from(DEFAULT_EXP);
 
-    let (_, d, _) = algorithms::extended_eucledian(&e, &lambda_n);
+    let (gcd, d_tmp, _) = algorithms::extended_eucledian(&e, &lambda_n);
+    let d = (d_tmp % &lambda_n + &lambda_n) % &lambda_n; // Take the modulo, not the remainder.
 
-    if d < BigInt::from(0) {
-        Err("Failed to generate private key")
+    if gcd != BigInt::from(1) {
+        Err("No multiplicative inverse found")
     } else {
         Ok(KeyPair {
             public: Key {
-                exp: e,
+                exp: e.clone(),
                 modulus: n.clone(),
             },
             private: Key { exp: d, modulus: n },
@@ -182,7 +183,7 @@ fn generate_probable_prime() -> BigInt {
 
 #[cfg(test)]
 mod tests {
-    use super::{Key, KeyPair};
+    use super::*;
     use num_bigint::BigInt;
     use std::str::FromStr;
 
@@ -232,5 +233,21 @@ mod tests {
             .unwrap();
 
         assert_eq!(original, decrypted)
+    }
+
+    // example from https://en.wikipedia.org/wiki/RSA_(cryptosystem)
+    #[test]
+    fn generate_from_primes_generates_correct_keys() {
+        let p = BigInt::from_str("61").unwrap();
+        let q = BigInt::from_str("53").unwrap();
+        let e = BigInt::from_str("17").unwrap();
+
+        let keys = super::generate_from_primes(&p, &q, &e).unwrap();
+
+        assert_eq!(BigInt::from_str("3233").unwrap(), keys.public.modulus);
+        assert_eq!(BigInt::from_str("17").unwrap(), keys.public.exp);
+
+        assert_eq!(BigInt::from_str("3233").unwrap(), keys.private.modulus);
+        assert_eq!(BigInt::from_str("413").unwrap(), keys.private.exp);
     }
 }
