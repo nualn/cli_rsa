@@ -15,9 +15,9 @@ The time and space complexity of the algorithm will be discussed here in the fut
 
 ## Deficiencies and improvements
 
-The program implements the RSA cryptosystem, but it is not secure. The program does not implement padding, which is a crucial part of the RSA cryptosystem. Without padding the program is vulnerable to attacks such as the [chosen ciphertext attack](https://en.wikipedia.org/wiki/Chosen-ciphertext_attack).
+The program implements the RSA cryptosystem, but it is not secure. The program does not implement secure padding, which is a crucial part of the RSA cryptosystem. Without padding the program is vulnerable to attacks such as the [chosen ciphertext attack](https://en.wikipedia.org/wiki/Chosen-ciphertext_attack).
 
-The program is functions therefore only as a demonstration of the RSA cryptosystem and is not suitable for real world use.
+The program functions therefore only as a demonstration of the RSA cryptosystem and is not suitable for real world use.
 
 To make the program secure, a padding scheme such as [OAEP](https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding) should be implemented, as well as larger key sizes.
 

@@ -2,13 +2,16 @@
 - Did the peer review.
 - Improved testing.
 - Improved documentation.
+- Added very basic padding to make encryption work with non-text files.
 
 ## Progress:
 - Test coverage increased somewhat. 
 - Tests are now run with both small and large inputs.
+- Pad encryption input with a 1 byte to preserve leading zeros so that program works with non-text files.
 
 ## What I learned:
-- Not much. This week was mostly about improving testing and documentation.
+- Learned about more about padding.
+- Not much else. This week was mostly about improving testing and documentation.
 
 ## What was unclear/hard:
 - Is the unit testing good enough? I'm not sure.
@@ -20,4 +23,4 @@
 - Add end-to-end tests.
 
 ## Time used: 
-7h
+8h
