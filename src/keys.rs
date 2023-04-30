@@ -56,19 +56,23 @@ impl Key {
 
     /// Reads data from the input, encrypts it using self, then writes it to the output.
     pub fn encrypt(&self, input: &mut dyn Read, output: &mut dyn Write) -> std::io::Result<()> {
-        let in_bytes: usize = (self.modulus.bits() / 8).try_into().unwrap();
+        let in_bytes: usize = (self.modulus.bits() / 8 - 1).try_into().unwrap();
         let out_bytes: usize = ((self.modulus.bits() + 7) / 8).try_into().unwrap();
 
-        let mut current_in_bytes: Vec<u8> = vec![0u8; in_bytes];
+        let mut current_in_bytes: Vec<u8> = vec![0u8; in_bytes + 1];
 
         let mut amount_of_bytes_read = in_bytes;
 
         while amount_of_bytes_read > 0 {
-            current_in_bytes.fill(0);
-            amount_of_bytes_read = input.read(&mut current_in_bytes)?;
+            current_in_bytes.fill(0u8);
+
+            amount_of_bytes_read = input.take(in_bytes as u64).read(&mut current_in_bytes)?;
             if amount_of_bytes_read == 0 {
                 break;
             }
+
+            // Preserve leading null bytes
+            current_in_bytes[amount_of_bytes_read] = 1u8;
 
             let mut dencrypted_bytes = modular_pow(
                 &BigInt::from_bytes_le(num_bigint::Sign::Plus, &current_in_bytes),
@@ -106,13 +110,15 @@ impl Key {
                 break;
             }
 
-            let dencrypted_bytes = modular_pow(
+            let mut dencrypted_bytes = modular_pow(
                 &BigInt::from_bytes_le(num_bigint::Sign::Plus, &current_in_bytes),
                 &self.exp,
                 &self.modulus,
             )
             .to_bytes_le()
             .1;
+
+            dencrypted_bytes.pop();
 
             output.write_all(&dencrypted_bytes)?;
         }
