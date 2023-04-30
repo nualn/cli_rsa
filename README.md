@@ -7,6 +7,8 @@
 
 [Implementation document](./documentation/implementation.md)
 
+[Usage](./documentation/usage.md)
+
 ## Weekly reports
 [Week 1](./documentation/week1.md)
 
@@ -17,3 +19,5 @@
 [Week 4](./documentation/week4.md)
 
 [Week 5](./documentation/week5.md)
+
+[Week 6](./documentation/week6.md)

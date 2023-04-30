@@ -3,12 +3,14 @@
 
 
 ## What was tested and how
-Currently there are unit tests for the mathematical functions in the algorithms.rs file. The other logic is still untested.
 The testing is done using Rust's built-in unit testing.
 
-## Inputs
-The testinputs are smal integers for most tests. There are now some tests with a large prime number, and the plan is to test everything with large inputs.
+The program is thoroughly unit tested. Functions for the cli and file handling are not tested. Also the generation of random primes is not tested, because its output is random and therefore hard to test. However the algorithm for testing primality is tested.
 
+The tests are written in the same file as the code they test. This is a convention in Rust.
+
+## Inputs
+The tests are run with both small and large inputs. The small inputs are used to test the correctness of the program. The large inputs are equivalent to the inputs that the program is expected to handle in practice.
 ## Running
 Run ```cargo test``` in the terminal
 
