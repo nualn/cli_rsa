@@ -1,3 +1,6 @@
+# Usage
+
+You can download the program from the from the release page as a precompiled binary for Linux or Windows or you can compile the program yourself by cloning the repository and running `cargo build --release` in the root directory of the project source.
 
 The program can be run with the following commands:
 
