@@ -12,7 +12,7 @@ The tests are written in the same file as the code they test. This is a conventi
 ## Inputs
 The tests are run with both small and large inputs. The small inputs are used to test the correctness of the program. The large inputs are equivalent to the inputs that the program is expected to handle in practice.
 ## Running
-Run ```cargo test``` in the terminal
+Run ```cargo test``` in the terminal in the root directory of the project source.
 
 **Note!** 
 
