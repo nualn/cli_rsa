@@ -18,6 +18,8 @@ This command encrypts the contents of the file at `<IN_PATH>` with the key at `<
 cargo run --release -- encrypt -k key.private 
 ```
 
+Any type of file can be encrypted.
+
 ## Decrypt a message or file
 ```
 cargo run decrypt --in-path <IN_PATH> --out-path <OUT_PATH> --key-path <KEY_PATH>

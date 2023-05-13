@@ -11,7 +11,13 @@ The program code is structured as follows:
 
 ## Achived time and space complexity
 
-The time and space complexity of the algorithm will be discussed here in the future.
+The worst-case time complexity of the Euclidean algorithm is O(h), where h is the number of digits in the smaller of the integers under consideration.
+
+The worst-case time complexity for the Miller-Rab test is O(k log³ n), where k is the number of iterations used in the test and n is the integer under consideration.
+
+Since the algorithms used in the implementation of the program have closely followed the sources mentioned below, they achieve these time requirements.
+
+However, more important than the time and space complexity is the correctness testing of the RSA encryption keys, which is the focus of the automated testing.
 
 ## Deficiencies and improvements
 
