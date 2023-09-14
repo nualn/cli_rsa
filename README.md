@@ -1,5 +1,7 @@
 # CLI RSA
 
+[![codecov](https://codecov.io/gh/nualn/tiralabra/branch/main/graph/badge.svg?token=QWGERCEMN8)](https://codecov.io/gh/nualn/tiralabra)
+
 The goal of this project is to implement the RSA key generation and encryption. 
 
 Asymmetric cryptography is vital for secure data transmission in unsecure environments such as the Internet. RSA is widely used for that purpose. The purpose of this project is to learn about encryption and the RSA cryptosystem.
